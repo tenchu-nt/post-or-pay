@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "project": {
+    "catalog": "prod",
+    "merchantId": "acct_1UaawbAiY6UcW7Av",
+    "merchantDisplayName": null,
+    "projectId": "project_61VjyymmWKv3c8bfJ16Vjytx2IGC23EDSokKrRDeaT68",
+    "projectName": "post-or-pay",
+    "initializedAt": "2026-11-11T12:53:04.231Z"
+  },
+  "providers": {},
+  "resources": {}
+}
