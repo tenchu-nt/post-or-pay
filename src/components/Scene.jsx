@@ -5,7 +5,7 @@ import { useGSAP } from '@gsap/react'
 
 gsap.registerPlugin(ScrollTrigger, useGSAP)
 
-const GOLD = '#E8B84A', RED = '#E5484D', INK = 'rgba(244,241,234,'
+const GOLD = '#E0A526', RED = '#B42E24', INK = 'rgba(22,20,15,', PAPER = '#F4F1EA'
 const clamp = (v) => Math.max(0, Math.min(1, v))
 const seg = (p, a, b) => clamp((p - a) / (b - a))
 const ease = (t) => 1 - Math.pow(1 - t, 3)
@@ -28,15 +28,15 @@ function draw(ctx, w, h, p) {
 
   if (glow > 0) {
     const g = ctx.createRadialGradient(cx, jy, 10, cx, jy, 260 * s)
-    g.addColorStop(0, `rgba(232,184,74,${0.45 * glow})`); g.addColorStop(1, 'rgba(232,184,74,0)')
+    g.addColorStop(0, `rgba(224,165,38,${0.28 * glow})`); g.addColorStop(1, 'rgba(224,165,38,0)')
     ctx.fillStyle = g; ctx.fillRect(0, 0, w, h)
   }
 
   // Jar (glass) or shards
   const left = cx - jw / 2, top = jy - jh / 2
   if (shatter === 0) {
-    ctx.strokeStyle = `${INK}${0.35 + glow * 0.5})`; ctx.lineWidth = 2 * s
-    ctx.fillStyle = `${INK}0.04)`
+    ctx.strokeStyle = `${INK}${0.85 + glow * 0.15})`; ctx.lineWidth = 2.5 * s
+    ctx.fillStyle = `${INK}0.03)`
     ctx.beginPath(); ctx.roundRect(left, top, jw, jh, 28 * s); ctx.fill(); ctx.stroke()
     ctx.fillRect(left + 18 * s, top - 18 * s, jw - 36 * s, 14 * s)
   } else {
@@ -48,7 +48,7 @@ function draw(ctx, w, h, p) {
       ctx.translate(cx + Math.cos(a) * d, jy + Math.sin(a) * d + t * t * 60 * s)
       ctx.rotate(t * (i % 2 ? 2 : -2))
       ctx.globalAlpha = 1 - t * 0.7
-      ctx.strokeStyle = `${INK}0.6)`; ctx.fillStyle = `${INK}0.06)`; ctx.lineWidth = 2 * s
+      ctx.strokeStyle = `${INK}0.85)`; ctx.fillStyle = `${INK}0.04)`; ctx.lineWidth = 2 * s
       ctx.beginPath(); ctx.moveTo(0, -30 * s); ctx.lineTo(22 * s, 18 * s); ctx.lineTo(-18 * s, 24 * s); ctx.closePath()
       ctx.fill(); ctx.stroke(); ctx.restore()
     }
@@ -59,8 +59,9 @@ function draw(ctx, w, h, p) {
   const coinY = -40 * s + drop * (jy + jh / 2 - 34 * s + 40 * s)
   ctx.globalAlpha = 1 - shatter
   ctx.fillStyle = GOLD; ctx.beginPath(); ctx.arc(cx, coinY, 26 * s, 0, Math.PI * 2); ctx.fill()
-  ctx.strokeStyle = '#B8862A'; ctx.lineWidth = 3 * s; ctx.beginPath(); ctx.arc(cx, coinY, 18 * s, 0, Math.PI * 2); ctx.stroke()
-  ctx.fillStyle = '#0A0A0B'; ctx.font = `700 ${20 * s}px Inter, system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+  ctx.lineWidth = 2.5 * s; ctx.strokeStyle = '#16140F'; ctx.beginPath(); ctx.arc(cx, coinY, 26 * s, 0, Math.PI * 2); ctx.stroke()
+  ctx.strokeStyle = 'rgba(22,20,15,0.45)'; ctx.lineWidth = 1.5 * s; ctx.beginPath(); ctx.arc(cx, coinY, 18 * s, 0, Math.PI * 2); ctx.stroke()
+  ctx.fillStyle = '#16140F'; ctx.font = `600 ${20 * s}px Geist, system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
   ctx.fillText('£', cx, coinY + 1)
   ctx.globalAlpha = 1
 
@@ -70,7 +71,7 @@ function draw(ctx, w, h, p) {
   for (let i = 0; i < 7; i++) {
     const x = cx - total / 2 + i * (cw + gap)
     const lit = seg(p, 0.22 + i * 0.06, 0.26 + i * 0.06)
-    ctx.lineWidth = 2; ctx.strokeStyle = `${INK}0.25)`
+    ctx.lineWidth = 1.5; ctx.strokeStyle = `${INK}0.35)`
     ctx.beginPath(); ctx.roundRect(x, cy, cw, cw, 10 * s); ctx.stroke()
     if (i === 3) {
       const crack = seg(p, 0.45, 0.5), patch = seg(p, 0.56, 0.62)
@@ -81,12 +82,12 @@ function draw(ctx, w, h, p) {
       }
       if (patch > 0) {
         ctx.globalAlpha = patch; ctx.fillStyle = GOLD; ctx.beginPath(); ctx.roundRect(x, cy, cw, cw, 10 * s); ctx.fill()
-        ctx.fillStyle = '#0A0A0B'; ctx.fillRect(x + cw * 0.25, cy + cw * 0.42, cw * 0.5, cw * 0.16); ctx.globalAlpha = 1
+        ctx.fillStyle = '#16140F'; ctx.fillRect(x + cw * 0.25, cy + cw * 0.42, cw * 0.5, cw * 0.16); ctx.globalAlpha = 1
       }
       continue
     }
     if (lit > 0) {
-      ctx.globalAlpha = lit; ctx.fillStyle = GOLD; ctx.beginPath(); ctx.roundRect(x, cy, cw, cw, 10 * s); ctx.fill(); ctx.globalAlpha = 1
+      ctx.globalAlpha = lit; ctx.fillStyle = GOLD; ctx.strokeStyle = '#16140F'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.roundRect(x, cy, cw, cw, 10 * s); ctx.fill(); ctx.stroke(); ctx.globalAlpha = 1
     }
   }
 }
@@ -126,7 +127,7 @@ export default function Scene() {
   return (
     <section ref={wrap} className="relative h-svh w-full overflow-hidden bg-bg" aria-label="How a streak plays out">
       <canvas ref={canvas} className="absolute inset-0 h-full w-full" aria-hidden />
-      <p ref={caption} aria-hidden className="absolute bottom-[8%] left-0 right-0 px-4 text-center text-2xl sm:text-4xl font-semibold tracking-tight" />
+      <p ref={caption} aria-hidden className="absolute bottom-[8%] left-0 right-0 px-4 text-center text-2xl sm:text-4xl font-semibold tracking-[-0.03em] text-balance" />
       <p className="sr-only">A coin drops into a jar. Seven day cells light up. One cracks and is patched with insurance. A kept streak glows; a broken one shatters.</p>
     </section>
   )

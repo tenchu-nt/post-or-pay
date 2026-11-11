@@ -3,9 +3,13 @@ import { ArrowRight, Loader2, RotateCcw, ShieldCheck, Search, FastForward, Flag 
 import * as api from './api.js'
 import Streak from './components/Streak.jsx'
 import ShareCard, { pounds, verdictLine } from './components/ShareCard.jsx'
+import Proof from './components/Proof.jsx'
 import { Footer } from './Landing.jsx'
 
 const STATUS = { pending: 'Awaiting card', active: 'Live', won: 'Won', lost: 'Lost' }
+const LINK_PLATFORMS = ['tiktok', 'x', 'instagram', 'linkedin']
+const PROOF_ONLY = ['instagram', 'linkedin']
+const LINK_PH = { tiktok: 'https://www.tiktok.com/@you/video/…', x: 'https://x.com/you/status/…', instagram: 'https://www.instagram.com/p/…', linkedin: 'https://www.linkedin.com/posts/…' }
 
 export default function Dashboard({ id, witnessId, params }) {
   const readOnly = !!witnessId
@@ -17,6 +21,15 @@ export default function Dashboard({ id, witnessId, params }) {
   const [askLink, setAskLink] = useState(false)
   const [link, setLink] = useState('')
   const started = useRef(false)
+  const [receipts, setReceipts] = useState(null)
+  const [receiptsError, setReceiptsError] = useState('')
+  const pid = id || null
+  async function loadReceipts() {
+    if (!pid) return
+    setReceiptsError('')
+    try { setReceipts(await api.getReceipts(pid)) } catch (e) { setReceiptsError(e.message) }
+  }
+  useEffect(() => { if (pledge && pid && !receipts) loadReceipts() }, [pledge])
 
   async function load() {
     setLoadError('')
@@ -51,25 +64,25 @@ export default function Dashboard({ id, witnessId, params }) {
   }
 
   const check = () => {
-    if (pledge.platform === 'tiktok' && !askLink) { setAskLink(true); return }
-    run('check', () => api.checkToday(pledge.id, pledge.platform === 'tiktok' ? link.trim() : undefined), (r) => {
+    if (needsLink && !askLink) { setAskLink(true); return }
+    run('check', () => api.checkToday(pledge.id, needsLink ? link.trim() : undefined), (r) => {
       setAskLink(false); setLink('')
       return `${r.result.posted ? 'Posted.' : 'No post found.'} ${r.result.verdict || ''}`.trim()
     })
   }
-  const insure = (date) => run('insure:' + date, () => api.insureDay(pledge.id, date), () => `Day ${date} insured. ${pounds(pledge.insurancePrice || 100)} charged (test mode).`)
-  const settle = () => run('settle', () => api.settleWeek(pledge.id), (r) => r.outcome === 'won' ? 'Week settled. Streak kept: you pay nothing.' : `Week settled. Streak broken: ${pounds(pledge.stake)} charged (test mode).`)
+  const insure = (date) => run('insure:' + date, () => api.insureDay(pledge.id, date), () => { loadReceipts(); return `Day ${date} insured. ${pounds(pledge.insurancePrice || 100)} charged (test mode).` })
+  const settle = () => run('settle', () => api.settleWeek(pledge.id), (r) => (loadReceipts(), r.outcome === 'won') ? 'Week settled. Streak kept: you pay nothing.' : `Week settled. Streak broken: ${pounds(pledge.stake)} charged (test mode).`)
   const advance = () => run('advance', () => api.advanceDay(pledge.id), (r) => `Demo clock moved to day ${r.pledge.dayIndex + 1}.`)
 
   if (loadError) return (
     <Shell>
       <div className="py-24 text-center">
         <p className="eyebrow mb-4">Not found</p>
-        <h1 className="headline text-4xl sm:text-5xl">This streak <span className="serif text-gold">isn’t here.</span></h1>
+        <h1 className="headline text-4xl sm:text-5xl">This streak isn’t here.</h1>
         <p role="alert" className="mt-4 text-muted">{loadError}</p>
         <div className="mt-8 flex gap-3 justify-center flex-wrap">
           <Btn onClick={() => { setLoadError(''); load() }}><RotateCcw size={16} aria-hidden /> Retry</Btn>
-          <a href="#/" className="min-h-11 px-5 rounded-full bg-gold text-bg font-semibold inline-flex items-center gap-2">Start your own <ArrowRight size={16} aria-hidden /></a>
+          <a href="#/" className="btn btn-primary">Start your own <ArrowRight size={16} aria-hidden /></a>
         </div>
       </div>
     </Shell>
@@ -86,6 +99,7 @@ export default function Dashboard({ id, witnessId, params }) {
   )
 
   const active = pledge.status === 'active'
+  const needsLink = LINK_PLATFORMS.includes(pledge.platform)
   const missed = pledge.days.filter((d) => d.status === 'missed')
 
   return (
@@ -94,20 +108,20 @@ export default function Dashboard({ id, witnessId, params }) {
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-4">
             <span className="eyebrow">{readOnly ? 'Witness view' : 'Your streak'}</span>
-            {pledge.isDemo && <span className="text-xs rounded-full border border-gold text-gold px-2 py-0.5">Example</span>}
-            <span className={`text-xs rounded-full px-2 py-0.5 ${pledge.status === 'lost' ? 'bg-danger/20 text-danger' : 'bg-white/10'}`}>{STATUS[pledge.status]}</span>
+            {pledge.isDemo && <span className="text-xs rounded-full border border-ink text-ink px-2 py-0.5">Example</span>}
+            <span className={`text-xs rounded-full px-2 py-0.5 ${pledge.status === 'lost' ? 'bg-danger/20 text-danger' : 'bg-ink/5'}`}>{STATUS[pledge.status]}</span>
           </div>
           <h1 className="headline text-4xl sm:text-6xl break-words">
-            {pledge.name}’s <span className="serif text-gold">seven days.</span>
+            {pledge.name}’s <span className="text-muted">seven days.</span>
           </h1>
           <p className="mt-4 text-muted break-all"><span className="capitalize">{pledge.platform}</span> · {pledge.handle} · Day {Math.min(pledge.dayIndex + 1, pledge.length)} of {pledge.length} · {pledge.today}</p>
-          <p className="mt-6 text-3xl font-semibold tracking-tight"><span className="text-gold">{pounds(pledge.stake)}</span> on the line</p>
+          <p className="mt-6 text-3xl font-semibold tracking-tight tabular-nums">{pounds(pledge.stake)} <span className="text-muted font-normal">on the line</span></p>
           <p className="mt-1 text-muted">{verdictLine(pledge)}</p>
 
           {pledge.status === 'pending' && !readOnly && (
             <div role="alert" className="mt-6 rounded-2xl border border-danger/50 bg-danger/10 p-4">
               <p className="font-semibold">Card not saved yet</p>
-              <p className="text-sm text-muted mt-1">Checkout did not finish, so the streak has not started. <a href="#/" className="text-gold underline underline-offset-4">Try again</a></p>
+              <p className="text-sm text-muted mt-1">Checkout did not finish, so the streak has not started. <a href="#/" className="font-medium underline underline-offset-4">Try again</a></p>
             </div>
           )}
 
@@ -116,7 +130,7 @@ export default function Dashboard({ id, witnessId, params }) {
           <ul className="mt-6 space-y-2 text-sm">
             {pledge.days.filter((d) => d.verdict).map((d) => (
               <li key={d.date} className="text-muted break-words"><span className="text-ink">{d.date}</span> · {d.verdict}
-                {d.evidenceUrl && <> · <a href={d.evidenceUrl} target="_blank" rel="noreferrer" className="text-gold underline underline-offset-4">evidence</a></>}</li>
+                {d.evidenceUrl && <> · <a href={d.evidenceUrl} target="_blank" rel="noreferrer" className="font-medium text-ink underline underline-offset-4">evidence</a></>}</li>
             ))}
           </ul>
 
@@ -124,9 +138,10 @@ export default function Dashboard({ id, witnessId, params }) {
             <div className="mt-8 space-y-4">
               {askLink && (
                 <div>
-                  <label htmlFor="tlink" className="block text-sm text-muted mb-2">Paste today’s TikTok post link</label>
-                  <input id="tlink" value={link} onChange={(e) => setLink(e.target.value)} placeholder="https://www.tiktok.com/@you/video/…" inputMode="url"
-                    className="w-full min-h-12 rounded-xl bg-bg border border-divider px-4" />
+                  <label htmlFor="tlink" className="block text-sm text-muted mb-2">Paste today’s post link</label>
+                  <input id="tlink" value={link} onChange={(e) => setLink(e.target.value)} placeholder={LINK_PH[pledge.platform]} inputMode="url" aria-describedby="tlink-hint"
+                    className="field" />
+                  {PROOF_ONLY.includes(pledge.platform) && <p id="tlink-hint" className="mt-2 text-xs text-muted">Logged as link proof. {pledge.platform === 'linkedin' ? 'LinkedIn' : 'Instagram'} posts can’t be verified automatically.</p>}
                 </div>
               )}
               <div className="flex flex-wrap gap-2">
@@ -142,7 +157,7 @@ export default function Dashboard({ id, witnessId, params }) {
                   <Btn onClick={settle} busy={running === 'settle'} disabled={!!running}><Flag size={16} aria-hidden /> Settle week</Btn>
                 )}
               </div>
-              <div className="rounded-2xl border border-dashed border-divider p-4">
+              <div className="rounded-2xl border border-dashed border-divider bg-white/50 p-4">
                 <p className="text-xs text-muted mb-2">Demo control: skips the clock forward one day so you can see a full week in minutes.</p>
                 <Btn onClick={advance} busy={running === 'advance'} disabled={!!running}><FastForward size={16} aria-hidden /> Demo: simulate next day</Btn>
               </div>
@@ -150,7 +165,7 @@ export default function Dashboard({ id, witnessId, params }) {
           )}
 
           <div aria-live="polite" className="mt-6 min-h-6">
-            {verdict && <p className="rounded-2xl bg-surface border border-divider px-4 py-3">{verdict}</p>}
+            {verdict && <p className="rounded-2xl bg-white border border-divider px-4 py-3">{verdict}</p>}
           </div>
           <div aria-live="assertive">
             {actionError && (
@@ -162,19 +177,19 @@ export default function Dashboard({ id, witnessId, params }) {
           </div>
 
           {pledge.contract && (
-            <details className="mt-10 rounded-2xl border border-divider p-5" open>
+            <details className="mt-10 rounded-2xl border border-divider bg-white p-5" open>
               <summary className="cursor-pointer font-semibold min-h-6">The contract</summary>
               <p className="mt-3 text-muted whitespace-pre-line leading-relaxed">{pledge.contract}</p>
             </details>
           )}
 
           {readOnly && (
-            <a href="#/" className="mt-10 min-h-12 px-6 rounded-full bg-gold text-bg font-semibold inline-flex items-center gap-2">
+            <a href="#/" className="btn btn-primary mt-10 min-h-12 px-6">
               Start your own <ArrowRight size={18} aria-hidden />
             </a>
           )}
         </div>
-        <div><ShareCard pledge={pledge} /></div>
+        <div><ShareCard pledge={pledge} />{pid && <Proof pledge={pledge} receipts={receipts} error={receiptsError} />}</div>
       </section>
     </Shell>
   )
@@ -184,7 +199,7 @@ function Shell({ children }) {
   return (
     <>
       <header className="px-4 sm:px-8 max-w-6xl mx-auto flex items-center justify-between min-h-16">
-        <a href="#/" className="font-semibold tracking-tight min-h-11 inline-flex items-center">Post <span className="serif text-gold mx-1">or</span> Pay</a>
+        <a href="#/" className="font-semibold tracking-tight min-h-11 inline-flex items-center"><span aria-hidden className="mr-2 h-2.5 w-2.5 rounded-full bg-gold ring-1 ring-ink" />Post or Pay</a>
       </header>
       <main className="px-4 sm:px-8 max-w-6xl mx-auto">{children}</main>
       <Footer />
@@ -195,8 +210,7 @@ function Shell({ children }) {
 function Btn({ children, primary, busy, ...rest }) {
   return (
     <button {...rest} aria-busy={busy || undefined}
-      className={`min-h-11 px-5 rounded-full inline-flex items-center gap-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed ${
-        primary ? 'bg-gold text-bg hover:bg-gold-light' : 'border border-divider hover:border-gold'}`}>
+      className={`btn ${primary ? 'btn-primary' : 'btn-ghost'}`}>
       {busy ? <Loader2 size={16} className="animate-spin" aria-hidden /> : null}{children}
     </button>
   )

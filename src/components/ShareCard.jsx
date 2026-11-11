@@ -29,8 +29,7 @@ export default function ShareCard({ pledge, actions = true }) {
 
   return (
     <div>
-      <div className="relative mx-auto w-full max-w-sm aspect-[1080/1350] rounded-3xl overflow-hidden border border-divider bg-gradient-to-b from-surface to-bg p-6 flex flex-col justify-between">
-        <div aria-hidden className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-gold/15 blur-3xl" />
+      <div className="relative mx-auto w-full max-w-sm aspect-[1080/1350] rounded-3xl overflow-hidden border border-divider bg-surface p-6 flex flex-col justify-between shadow-[0_1px_2px_rgb(22_20_15/0.04),0_12px_32px_-12px_rgb(22_20_15/0.12)]">
         <div className="relative">
           <p className="eyebrow">Post or Pay</p>
           <p className="mt-4 text-2xl font-semibold tracking-tight break-all">{pledge.handle}</p>
@@ -38,16 +37,16 @@ export default function ShareCard({ pledge, actions = true }) {
         </div>
         <div className="relative"><Streak pledge={pledge} /></div>
         <div className="relative">
-          <p className="headline text-4xl"><span className="text-gold">{pounds(pledge.stake)}</span> on the line</p>
-          <p className="serif text-xl mt-2 text-ink/90">{verdictLine(pledge)}</p>
+          <p className="headline text-4xl tabular-nums">{pounds(pledge.stake)} <span className="text-muted">on the line</span></p>
+          <p className="text-lg mt-2 text-muted">{verdictLine(pledge)}</p>
         </div>
       </div>
       {actions && (
         <div className="mt-4 flex flex-wrap gap-2 justify-center">
-          <button onClick={copy} className="min-h-11 px-5 rounded-full border border-divider inline-flex items-center gap-2 hover:border-gold">
+          <button onClick={copy} className="btn btn-ghost">
             <Copy size={16} aria-hidden /> Copy witness link
           </button>
-          <button onClick={share} className="min-h-11 px-5 rounded-full border border-divider inline-flex items-center gap-2 hover:border-gold">
+          <button onClick={share} className="btn btn-ghost">
             <Share2 size={16} aria-hidden /> Share
           </button>
           <p aria-live="polite" className="w-full text-center text-sm text-muted break-all min-h-5">{copied}</p>

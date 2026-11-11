@@ -16,3 +16,4 @@ export const checkToday = (id, link) => req('/api/check', link ? { id, link } : 
 export const advanceDay = (id) => req('/api/advance', { id })
 export const insureDay = (id, date) => req('/api/insure', { id, date })
 export const settleWeek = (id) => req('/api/settle', { id })
+export const getReceipts = (id) => req(`/api/receipts?id=${encodeURIComponent(id)}`)
