@@ -7,14 +7,19 @@ You commit to posting every day for 7 days and put £5–£20 on the line. Each 
 Built at Agentic Dev Day 2026 with Stripe Projects. **Stripe test mode only: no real money moves.**
 
 ## How the post check works
-| Platform | How it is checked |
+| Platform | Check |
 |---|---|
-| Bluesky | Automatically, through the public `app.bsky.feed.getAuthorFeed` API |
-| TikTok | You paste the post link. TikTok's public oEmbed confirms the author, and the date comes from the video ID. |
-| YouTube | Automatically, through the channel's public RSS feed |
-| Instagram, X | Not yet supported: they need paid or app-reviewed API access |
+| YouTube | Automatic: public channel RSS |
+| Blog, Newsletter, Podcast | Automatic: your RSS/Atom feed |
+| X | Post link: author via public oEmbed, date from the post ID |
+| TikTok | Post link: author via public oEmbed, date from the video ID |
+| LinkedIn | Post link: date from the activity ID (authorship self-reported) |
+| Instagram | Post link logged as proof (no free API, not verified) |
 
-A rule-based check decides whether you posted. An AI coach (a free model on OpenRouter) writes the contract and the daily verdict, and falls back to template lines when the model is unavailable.
+A rule-based check decides "posted". The AI coach (free OpenRouter model) writes the contract and daily verdict, with template fallback.
+
+## Proof
+`GET /api/receipts?id=` reads the saved card and every PaymentIntent straight from Stripe; the dashboard shows them with their `pi_` IDs.
 
 ## Payments
 - You save a card once, through Stripe Checkout in `setup` mode.
@@ -23,8 +28,8 @@ A rule-based check decides whether you posted. An AI coach (a free model on Open
 
 ## Demo script (2 minutes)
 1. Open the site and click **See a live example**: a seeded pledge that is 4 days in, with one insured day. Its charges are labelled as simulated.
-2. **Start** a pledge with a Bluesky handle and pay with card `4242 4242 4242 4242`, any future date, any CVC.
-3. Post on Bluesky, then click **Check today**. The day is marked posted and the coach writes a verdict.
+2. **Start** a pledge (e.g. a newsletter RSS feed or YouTube channel ID) and pay with card `4242 4242 4242 4242`, any future date, any CVC.
+3. Click **Check today**. The agent reads the feed and marks the day; the Proof panel shows the saved card from Stripe.
 4. Click **Demo: simulate next day**. The skipped day becomes missed.
 5. Click **Insure for £1**. You'll see a real test-mode charge appear.
 6. Simulate to day 7, then click **Settle week**.
