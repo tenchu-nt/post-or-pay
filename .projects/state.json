@@ -1,6 +1,9 @@
 {
   "version": 2,
   "providers": {
+    "stripe": {
+      "name": "stripe"
+    },
     "upstash": {
       "name": "Upstash"
     },
@@ -9,6 +12,12 @@
     }
   },
   "resources": {
+    "stripe-sandbox": {
+      "livemode": true,
+      "name": "stripe-sandbox",
+      "providerName": "stripe",
+      "serviceId": "sandbox"
+    },
     "vercel-plan": {
       "livemode": true,
       "name": "vercel-plan",
