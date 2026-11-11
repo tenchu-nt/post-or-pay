@@ -11,6 +11,7 @@ export default route(['POST'], async (req, res) => {
   assertActive(p);
   // Settling early would count unchecked days as missed and forfeit the stake.
   if (p.dayOffset < LENGTH - 1) throw fail(409, 'The week is not over yet');
+  for (const d of p.days) if (d.status === 'pending') d.status = 'missed';
   const outcome = settleOutcome(p);
   let c;
   if (outcome === 'lost') {

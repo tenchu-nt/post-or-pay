@@ -10,7 +10,7 @@ import Scene from './components/Scene.jsx'
 gsap.registerPlugin(ScrollTrigger)
 
 export const PLATFORMS = [
-  { id: 'linkedin', label: 'LinkedIn', Icon: LinkedInLogo, ph: '@maya or Maya Patel', hint: 'You paste each post link. Logged as link proof: LinkedIn can’t be checked automatically.' },
+  { id: 'linkedin', label: 'LinkedIn', Icon: LinkedInLogo, ph: 'mayapatel (from linkedin.com/in/mayapatel)', hint: 'Your profile name from linkedin.com/in/… You paste each post link; we check the author and the date.' },
   { id: 'instagram', label: 'Instagram', Icon: InstagramLogo, ph: '@maya', hint: 'You paste each post link. Logged as link proof: Instagram can’t be checked automatically.' },
   { id: 'tiktok', label: 'TikTok', Icon: TikTokLogo, ph: '@maya', hint: 'Paste each day’s post link. The agent verifies it.' },
   { id: 'x', label: 'X', Icon: XLogo, ph: '@maya', hint: 'Paste each day’s post link. Verified through X’s public embed.' },

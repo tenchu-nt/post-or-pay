@@ -25,11 +25,11 @@ export default function Dashboard({ id, witnessId, params }) {
   const [receiptsError, setReceiptsError] = useState('')
   const pid = id || null
   async function loadReceipts() {
-    if (!pid) return
+    if (!pid && !witnessId) return
     setReceiptsError('')
-    try { setReceipts(await api.getReceipts(pid)) } catch (e) { setReceiptsError(e.message) }
+    try { setReceipts(await (pid ? api.getReceipts(pid) : api.getWitnessReceipts(witnessId))) } catch (e) { setReceiptsError(e.message) }
   }
-  useEffect(() => { if (pledge && pid && !receipts) loadReceipts() }, [pledge])
+  useEffect(() => { if (pledge && !receipts) loadReceipts() }, [pledge])
 
   async function load() {
     setLoadError('')
@@ -141,7 +141,7 @@ export default function Dashboard({ id, witnessId, params }) {
                   <label htmlFor="tlink" className="block text-sm text-muted mb-2">Paste today’s post link</label>
                   <input id="tlink" value={link} onChange={(e) => setLink(e.target.value)} placeholder={LINK_PH[pledge.platform]} inputMode="url" aria-describedby="tlink-hint"
                     className="field" />
-                  {PROOF_ONLY.includes(pledge.platform) && <p id="tlink-hint" className="mt-2 text-xs text-muted">Logged as link proof. {pledge.platform === 'linkedin' ? 'LinkedIn' : 'Instagram'} posts can’t be verified automatically.</p>}
+                  {pledge.platform === 'instagram' && <p id="tlink-hint" className="mt-2 text-xs text-muted">Logged as link proof. {pledge.platform === 'linkedin' ? 'LinkedIn' : 'Instagram'} posts can’t be verified automatically.</p>}
                 </div>
               )}
               <div className="flex flex-wrap gap-2">
@@ -189,7 +189,7 @@ export default function Dashboard({ id, witnessId, params }) {
             </a>
           )}
         </div>
-        <div><ShareCard pledge={pledge} />{pid && <Proof pledge={pledge} receipts={receipts} error={receiptsError} />}</div>
+        <div><ShareCard pledge={pledge} /><Proof pledge={pledge} receipts={receipts} error={receiptsError} /></div>
       </section>
     </Shell>
   )
