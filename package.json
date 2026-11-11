@@ -29,5 +29,6 @@
     "oxlint": "1.93.0",
     "tailwindcss": "4.3.5",
     "vite": "8.3.8"
-  }
+  },
+  "description": "Post every day for 7 days or lose your stake. An agent checks your feed daily. Miss a day and £1 Streak Insurance saves it. Stripe test mode."
 }
