@@ -1,0 +1,61 @@
+{
+  "version": 4,
+  "project": {
+    "catalog": "prod",
+    "initializedAt": "2026-11-11T12:55:41.692Z",
+    "merchantDisplayName": null,
+    "merchantId": "acct_1UaawbAiY6UcW7Av",
+    "projectId": "project_61Vjz1JqRbtHH1SNz16Vjytx2IGC23EDSokKrRDeaTJw",
+    "projectName": "post-or-pay"
+  },
+  "providers": {
+    "upstash": {
+      "accountRequestId": "facctrq_61Vjz43xISdCEAnAf16Vjytx2IGC23EDSokKrRDea2pk",
+      "configuration": {},
+      "linkedAt": "2026-11-11T12:58:33.190Z",
+      "providerId": "prvdr_61UVa3kQyvSOEnWgd5Naa",
+      "providerName": "Upstash",
+      "redirectUrl": null,
+      "requestedAt": "2026-11-11T12:58:31.755Z",
+      "status": "complete"
+    },
+    "vercel": {
+      "accountRequestId": "facctrq_61Vjz3wjVQXIaQSjc16Vjytx2IGC23EDSokKrRDeaVJY",
+      "configuration": {},
+      "linkedAt": "2026-11-11T12:58:27.086Z",
+      "providerId": "prvdr_61ULUAr4zlQgZkvXY5LsG",
+      "providerName": "Vercel",
+      "redirectUrl": null,
+      "requestedAt": "2026-11-11T12:58:24.339Z",
+      "status": "complete"
+    }
+  },
+  "resources": {
+    "vercel-plan": {
+      "configuration": {},
+      "createdAt": "2026-11-11T12:58:28.156Z",
+      "lastRevealedAt": "2026-11-11T12:58:28.481Z",
+      "lastStatus": "complete",
+      "livemode": true,
+      "name": "vercel-plan",
+      "providerId": "prvdr_61ULUAr4zlQgZkvXY5LsG",
+      "providerName": "Vercel",
+      "resourceId": "fres_61Vjz3zVigVADmELP16Vjytx2IGC23EDSokKrRDea8Wm",
+      "serviceId": "hobby"
+    },
+    "vercel-project": {
+      "configuration": {
+        "name": "post-or-pay"
+      },
+      "createdAt": "2026-11-11T12:59:41.386Z",
+      "lastRevealedAt": "2026-11-11T12:59:41.966Z",
+      "lastStatus": "complete",
+      "livemode": true,
+      "name": "vercel-project",
+      "providerId": "prvdr_61ULUAr4zlQgZkvXY5LsG",
+      "providerName": "Vercel",
+      "resourceId": "fres_61Vjz5AL7xPJGWPuC16Vjytx2IGC23EDSokKrRDeaOwK",
+      "serviceId": "project"
+    }
+  }
+}

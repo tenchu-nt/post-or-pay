@@ -1,6 +1,6 @@
 import { route, readBody } from '../lib/http.js';
-import { validateInput, makeDays, utcDate, newId, newWitnessId, publicView } from '../lib/pledge.js';
-import { savePledge, loadPledge } from '../lib/store.js';
+import { validateInput, makeDays, utcDate, newId, publicView } from '../lib/pledge.js';
+import { savePledge, loadPledge, createWitness } from '../lib/store.js';
 import { stripe } from '../lib/stripe.js';
 
 const baseUrl = (req) => (process.env.APP_URL || `https://${req.headers['x-forwarded-host'] || req.headers.host}`).replace(/\/$/, '');
@@ -12,8 +12,8 @@ export default route(['GET', 'POST'], async (req, res) => {
   }
   const input = validateInput(await readBody(req));
   const s = stripe();
-  const id = newId();
-  const customer = await s.customers.create({ name: input.name, metadata: { pledgeId: id } });
+  const customer = await s.customers.create({ name: input.name });
+  const id = process.env.LOCAL_MEMORY_STORE === '1' ? newId() : customer.id; // the Customer is the pledge record
   const base = baseUrl(req);
   const session = await s.checkout.sessions.create({
     mode: 'setup', currency: 'gbp', customer: customer.id, metadata: { pledgeId: id },
@@ -23,7 +23,7 @@ export default route(['GET', 'POST'], async (req, res) => {
   const startDate = utcDate();
   await savePledge({
     id, ...input, startDate, dayOffset: 0, status: 'pending', days: makeDays(startDate), contract: '',
-    witnessId: newWitnessId(), isDemo: false, charges: [], customerId: customer.id, paymentMethodId: null,
+    witnessId: await createWitness(id), isDemo: false, charges: [], customerId: customer.id, paymentMethodId: null,
   });
   res.status(200).json({ id, checkoutUrl: session.url });
 });
