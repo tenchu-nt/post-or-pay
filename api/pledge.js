@@ -7,7 +7,7 @@ const baseUrl = (req) => (process.env.APP_URL || `https://${req.headers['x-forwa
 
 export default route(['GET', 'POST'], async (req, res) => {
   if (req.method === 'GET') {
-    const p = await loadPledge(req.query?.id, { reset: req.query?.id === 'demo' && req.query?.reset === '1' });
+    const p = await loadPledge(req.query?.id, { refreshDemo: true });
     return res.status(200).json({ pledge: publicView(p) });
   }
   const input = validateInput(await readBody(req));

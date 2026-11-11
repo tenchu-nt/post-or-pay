@@ -3,6 +3,7 @@ import { Copy, Share2 } from 'lucide-react'
 import Streak from './Streak.jsx'
 import { platformLabel } from '../Landing.jsx'
 
+export const fmtDay = (date) => new Date(`${date}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' })
 export const pounds = (p) => `£${(p / 100).toFixed(p % 100 ? 2 : 0)}`
 
 export function verdictLine(pledge) {
@@ -30,10 +31,10 @@ export default function ShareCard({ pledge, actions = true }) {
 
   return (
     <div>
-      <div className="relative mx-auto w-full max-w-sm aspect-[1080/1350] rounded-3xl overflow-hidden border border-divider bg-surface p-6 flex flex-col justify-between shadow-[0_1px_2px_rgb(22_20_15/0.04),0_12px_32px_-12px_rgb(22_20_15/0.12)]">
+      <div className="relative mx-auto w-full max-w-sm lg:max-w-none aspect-[1080/1350] rounded-3xl overflow-hidden border border-divider bg-surface p-6 flex flex-col justify-between shadow-[0_1px_2px_rgb(22_20_15/0.04),0_12px_32px_-12px_rgb(22_20_15/0.12)]">
         <div className="relative">
           <p className="eyebrow">Post or Pay</p>
-          <p className="mt-4 text-xl font-semibold tracking-tight break-all">{pledge.handle}</p>
+          <p className="mt-4 text-xl font-semibold tracking-tight break-words">{pledge.name}</p>
           <p className="text-sm text-muted">{platformLabel(pledge.platform)} · {pledge.length}-day streak</p>
         </div>
         <div className="relative"><Streak pledge={pledge} /></div>

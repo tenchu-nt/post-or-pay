@@ -1,9 +1,10 @@
 import { CreditCard, Check } from 'lucide-react'
-import { pounds } from './ShareCard.jsx'
+import { pounds, fmtDay } from './ShareCard.jsx'
 
 const WHAT = { insurance: 'Streak Insurance', stake: 'Stake forfeited' }
 const PILL = { succeeded: 'bg-ink text-bg', processing: 'bg-gold/30 text-ink', requires_payment_method: 'bg-danger/15 text-danger', canceled: 'bg-ink/10 text-muted' }
-const time = (iso) => new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+// Simulated charges carry a plain date, or none (an example stake).
+const time = (iso) => !iso ? 'Simulated' : iso.length <= 10 ? fmtDay(iso) : new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
 
 function step(p) {
   if (p.status === 'pending') return 0
@@ -36,8 +37,8 @@ export default function Proof({ pledge, receipts, error }) {
           </p>
           {receipts.payments?.length ? (
             <ul className="mt-4 divide-y divide-divider border-y border-divider">
-              {receipts.payments.map((x) => (
-                <li key={x.id} className="py-3 grid grid-cols-[auto_1fr_auto] items-baseline gap-x-3 gap-y-1">
+              {receipts.payments.map((x, i) => (
+                <li key={x.id + i} className="py-3 grid grid-cols-[auto_1fr_auto] items-baseline gap-x-3 gap-y-1">
                   <span className="font-semibold tabular-nums">{pounds(x.amount)}</span>
                   <span className="text-sm">{WHAT[x.description] || x.description}</span>
                   <span className={`text-xs rounded-full px-2 py-0.5 ${PILL[x.status] || 'bg-ink/10 text-ink'}`}>{x.status.replace(/_/g, ' ')}</span>

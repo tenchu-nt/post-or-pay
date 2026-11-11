@@ -43,10 +43,11 @@ body { background: var(--color-bg); color: var(--color-ink); font-family: var(--
 .link-draw { text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 4px; transition: text-decoration-color 150ms ease; }
 
 input[type='range'] { -webkit-appearance: none; appearance: none; background: transparent; width: 100%; height: 44px; }
-input[type='range']::-webkit-slider-runnable-track { height: 4px; background: var(--color-divider); border-radius: 4px; }
+input[type='range']::-webkit-slider-runnable-track { height: 4px; background: linear-gradient(to right, var(--color-ink) var(--fill, 0%), var(--color-divider) var(--fill, 0%)); border-radius: 4px; }
 input[type='range']::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 999px; margin-top: -10px; background: var(--color-gold); border: 2px solid var(--color-ink); cursor: grab; transition: transform 140ms var(--ease-out); }
 input[type='range']:active::-webkit-slider-thumb { transform: scale(1.1); cursor: grabbing; }
 input[type='range']::-moz-range-track { height: 4px; background: var(--color-divider); border-radius: 4px; }
+input[type='range']::-moz-range-progress { height: 4px; background: var(--color-ink); border-radius: 4px; }
 input[type='range']::-moz-range-thumb { height: 20px; width: 20px; border: 2px solid var(--color-ink); border-radius: 999px; background: var(--color-gold); }
 .skeleton { background: linear-gradient(90deg, #ECE7DC 25%, #E2DCCF 50%, #ECE7DC 75%); background-size: 200% 100%; animation: sk 1.4s infinite; border-radius: 12px; }
 @keyframes sk { to { background-position: -200% 0; } }

@@ -2,13 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 import { ArrowRight, Loader2, RotateCcw, ShieldCheck, Search, FastForward, Flag } from 'lucide-react'
 import * as api from './api.js'
 import Streak from './components/Streak.jsx'
-import ShareCard, { pounds, verdictLine } from './components/ShareCard.jsx'
+import ShareCard, { pounds, verdictLine, fmtDay } from './components/ShareCard.jsx'
 import Proof from './components/Proof.jsx'
-import { Footer, platformLabel } from './Landing.jsx'
+import { Header, Footer, platformLabel } from './Landing.jsx'
 
 const STATUS = { pending: 'Awaiting card', active: 'Live', won: 'Won', lost: 'Lost' }
 const LINK_PLATFORMS = ['tiktok', 'x', 'instagram', 'linkedin']
-const PROOF_ONLY = ['instagram', 'linkedin']
 const LINK_PH = { tiktok: 'https://www.tiktok.com/@you/video/…', x: 'https://x.com/you/status/…', instagram: 'https://www.instagram.com/p/…', linkedin: 'https://www.linkedin.com/posts/…' }
 
 export default function Dashboard({ id, witnessId, params }) {
@@ -70,9 +69,9 @@ export default function Dashboard({ id, witnessId, params }) {
       return `${r.result.posted ? 'Posted.' : 'No post found.'} ${r.result.verdict || ''}`.trim()
     })
   }
-  const insure = (date) => run('insure:' + date, () => api.insureDay(pledge.id, date), () => { loadReceipts(); return `Day ${date} insured. ${pounds(pledge.insurancePrice || 100)} charged (test mode).` })
+  const insure = (date) => run('insure:' + date, () => api.insureDay(pledge.id, date), () => { loadReceipts(); return `${fmtDay(date)} insured. ${pounds(pledge.insurancePrice || 100)} charged (test mode).` })
   const settle = () => run('settle', () => api.settleWeek(pledge.id), (r) => (loadReceipts(), r.outcome === 'won') ? 'Week settled. Streak kept: you pay nothing.' : `Week settled. Streak broken: ${pounds(pledge.stake)} charged (test mode).`)
-  const advance = () => run('advance', () => api.advanceDay(pledge.id), (r) => `Demo clock moved to day ${r.pledge.dayIndex + 1}.`)
+  const advance = () => run('advance', () => api.advanceDay(pledge.id), (r) => r.pledge.finished ? 'Day 7 has passed. Settle the week.' : `Demo clock moved to day ${r.pledge.dayIndex + 1}.`)
 
   if (loadError) return (
     <Shell>
@@ -101,6 +100,7 @@ export default function Dashboard({ id, witnessId, params }) {
   const active = pledge.status === 'active'
   const needsLink = LINK_PLATFORMS.includes(pledge.platform)
   const missed = pledge.days.filter((d) => d.status === 'missed')
+  const over = pledge.finished // day 7 has passed: only insuring and settling are left
 
   return (
     <Shell>
@@ -114,7 +114,7 @@ export default function Dashboard({ id, witnessId, params }) {
           <h1 className="headline text-4xl sm:text-6xl break-words">
             {pledge.name}’s <span className="text-muted">seven days.</span>
           </h1>
-          <p className="mt-4 text-muted break-all"><span>{platformLabel(pledge.platform)}</span> · {pledge.handle} · Day {Math.min(pledge.dayIndex + 1, pledge.length)} of {pledge.length} · {pledge.today}</p>
+          <p className="mt-4 text-muted break-all"><span>{platformLabel(pledge.platform)}</span> · {pledge.handle} · {over ? 'Week over' : `Day ${pledge.dayIndex + 1} of ${pledge.length}`} · {fmtDay(pledge.today)}</p>
           <p className="mt-6 text-3xl font-semibold tracking-tight tabular-nums">{pounds(pledge.stake)} <span className="text-muted font-normal">on the line</span></p>
           <p className="mt-1 text-muted">{verdictLine(pledge)}</p>
 
@@ -129,14 +129,15 @@ export default function Dashboard({ id, witnessId, params }) {
 
           <ul className="mt-6 space-y-2 text-sm">
             {pledge.days.filter((d) => d.verdict).map((d) => (
-              <li key={d.date} className="text-muted break-words"><span className="text-ink">{d.date}</span> · {d.verdict}
+              <li key={d.date} className="text-muted break-words"><span className="text-ink">{fmtDay(d.date)}</span> · {d.verdict}
                 {d.evidenceUrl && <> · <a href={d.evidenceUrl} target="_blank" rel="noreferrer" className="font-medium text-ink underline underline-offset-4">evidence</a></>}</li>
             ))}
           </ul>
 
           {!readOnly && active && (
             <div className="mt-8 space-y-4">
-              {askLink && (
+              {over && <p className="text-muted">The week is over. Settle it to see the result.</p>}
+              {askLink && !over && (
                 <div>
                   <label htmlFor="tlink" className="block text-sm text-muted mb-2">Paste today’s post link</label>
                   <input id="tlink" value={link} onChange={(e) => setLink(e.target.value)} placeholder={LINK_PH[pledge.platform]} inputMode="url" aria-describedby="tlink-hint"
@@ -145,26 +146,30 @@ export default function Dashboard({ id, witnessId, params }) {
                 </div>
               )}
               <div className="flex flex-wrap gap-2">
-                <Btn primary onClick={check} busy={running === 'check'} disabled={!!running || (askLink && !link.trim())}>
-                  <Search size={16} aria-hidden /> {askLink ? 'Verify post' : 'Check today'}
-                </Btn>
+                {!over && (
+                  <Btn primary onClick={check} busy={running === 'check'} disabled={!!running || (askLink && !link.trim())}>
+                    <Search size={16} aria-hidden /> {askLink ? 'Verify post' : 'Check today'}
+                  </Btn>
+                )}
                 {missed.map((d) => (
                   <Btn key={d.date} onClick={() => insure(d.date)} busy={running === 'insure:' + d.date} disabled={!!running}>
-                    <ShieldCheck size={16} aria-hidden /> Insure {d.date.slice(5)} for {pounds(pledge.insurancePrice || 100)}
+                    <ShieldCheck size={16} aria-hidden /> Insure {fmtDay(d.date)} for {pounds(pledge.insurancePrice || 100)}
                   </Btn>
                 ))}
                 {pledge.dayIndex >= 6 && (
-                  <Btn onClick={settle} busy={running === 'settle'} disabled={!!running}><Flag size={16} aria-hidden /> Settle week</Btn>
+                  <Btn primary={over} onClick={settle} busy={running === 'settle'} disabled={!!running}><Flag size={16} aria-hidden /> Settle week</Btn>
                 )}
               </div>
-              <div className="rounded-2xl border border-dashed border-divider bg-white/50 p-4">
-                <p className="text-xs text-muted mb-2">Demo control: skips the clock forward one day so you can see a full week in minutes.</p>
-                <Btn onClick={advance} busy={running === 'advance'} disabled={!!running}><FastForward size={16} aria-hidden /> Demo: simulate next day</Btn>
-              </div>
+              {!over && (
+                <div className="rounded-2xl border border-dashed border-divider bg-white/50 p-4">
+                  <p className="text-xs text-muted mb-2">Demo control: skips the clock forward one day so you can see a full week in minutes.</p>
+                  <Btn onClick={advance} busy={running === 'advance'} disabled={!!running}><FastForward size={16} aria-hidden /> Demo: simulate next day</Btn>
+                </div>
+              )}
             </div>
           )}
 
-          <div aria-live="polite" className="mt-6 min-h-6">
+          <div aria-live="polite" className="mt-4">
             {verdict && <p className="rounded-2xl bg-white border border-divider px-4 py-3">{verdict}</p>}
           </div>
           <div aria-live="assertive">
@@ -177,7 +182,7 @@ export default function Dashboard({ id, witnessId, params }) {
           </div>
 
           {pledge.contract && (
-            <details className="mt-10 rounded-2xl border border-divider bg-white p-5" open>
+            <details className="mt-8 rounded-2xl border border-divider bg-white p-5" open>
               <summary className="cursor-pointer font-semibold min-h-6">The contract</summary>
               <p className="mt-3 text-muted whitespace-pre-line leading-relaxed">{pledge.contract}</p>
             </details>
@@ -197,13 +202,11 @@ export default function Dashboard({ id, witnessId, params }) {
 
 function Shell({ children }) {
   return (
-    <>
-      <header className="px-4 sm:px-8 max-w-6xl mx-auto flex items-center justify-between min-h-16">
-        <a href="#/" className="font-semibold tracking-tight min-h-11 inline-flex items-center"><span aria-hidden className="mr-2 h-2.5 w-2.5 rounded-full bg-gold ring-1 ring-ink" />Post or Pay</a>
-      </header>
-      <main className="px-4 sm:px-8 max-w-6xl mx-auto">{children}</main>
+    <div className="min-h-svh flex flex-col">
+      <Header />
+      <main className="flex-1 w-full px-4 sm:px-8 max-w-6xl mx-auto">{children}</main>
       <Footer />
-    </>
+    </div>
   )
 }
 

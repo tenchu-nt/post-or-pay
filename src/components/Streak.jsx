@@ -7,7 +7,7 @@ export default function Streak({ pledge, size = 'md' }) {
   return (
     <ol className="grid grid-cols-7 gap-1.5 sm:gap-2" aria-label="Streak">
       {pledge.days.map((d, i) => {
-        const today = i === pledge.dayIndex && pledge.status === 'active'
+        const today = i === pledge.dayIndex && pledge.status === 'active' && !pledge.finished
         const cls = d.status === 'posted' ? 'bg-gold text-ink border-ink' : d.status === 'insured' ? 'bg-gold/25 text-ink border-ink border-dashed'
           : d.status === 'missed' ? 'border-danger text-danger bg-danger/10' : 'border-divider bg-white text-muted'
         return (

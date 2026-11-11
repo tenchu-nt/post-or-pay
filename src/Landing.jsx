@@ -10,7 +10,7 @@ import Scene from './components/Scene.jsx'
 gsap.registerPlugin(ScrollTrigger)
 
 export const PLATFORMS = [
-  { id: 'linkedin', label: 'LinkedIn', Icon: LinkedInLogo, ph: 'mayapatel (from linkedin.com/in/mayapatel)', hint: 'Your profile name from linkedin.com/in/… You paste each post link; we check the author and the date.' },
+  { id: 'linkedin', label: 'LinkedIn', Icon: LinkedInLogo, ph: 'mayapatel', hint: 'Your profile name from linkedin.com/in/… You paste each post link; we check the author and the date.' },
   { id: 'instagram', label: 'Instagram', Icon: InstagramLogo, ph: '@maya', hint: 'You paste each post link. Logged as link proof: Instagram can’t be checked automatically.' },
   { id: 'tiktok', label: 'TikTok', Icon: TikTokLogo, ph: '@maya', hint: 'Paste each day’s post link. The agent verifies it.' },
   { id: 'x', label: 'X', Icon: XLogo, ph: '@maya', hint: 'Paste each day’s post link. Verified through X’s public embed.' },
@@ -36,20 +36,23 @@ export default function Landing({ params }) {
   }, [])
 
   return (
-    <main>
-      <Hero cancelled={params.get('cancelled') === '1'} />
-      <Scene />
-      <Chapters />
+    <>
+      <Header />
+      <main>
+        <Hero cancelled={params.get('cancelled') === '1'} />
+        <Scene />
+        <Chapters />
+      </main>
       <Footer />
-    </main>
+    </>
   )
 }
 
 function Hero({ cancelled }) {
   return (
-    <section className="relative min-h-svh px-4 sm:px-8 pt-10 pb-20 max-w-6xl mx-auto grid lg:grid-cols-[1.3fr_1fr] gap-12 items-center">
+    <section className="relative min-h-[calc(100svh-4rem)] px-4 sm:px-8 pt-6 pb-20 max-w-6xl mx-auto grid lg:grid-cols-[1.3fr_1fr] gap-12 items-center">
       <div className="relative">
-        <p className="eyebrow mb-6 inline-flex items-center gap-2"><span aria-hidden className="h-2 w-2 rounded-full bg-gold" />Post or Pay · Stripe test mode</p>
+        <p className="eyebrow mb-6">Stripe test mode · no real money</p>
         <h1 className="headline text-[2.5rem] sm:text-6xl xl:text-7xl">
           Post every day for 7&nbsp;days.<br /><span className="text-muted">Miss one and it costs you.</span>
         </h1>
@@ -118,14 +121,15 @@ function StartForm({ cancelled }) {
           <label htmlFor="stake" className="text-sm text-muted">Stake</label>
           <output htmlFor="stake" className="text-2xl font-semibold tracking-tight tabular-nums">£{stake} <span className="text-base font-normal text-muted">on the line</span></output>
         </div>
-        <input id="stake" type="range" min={5} max={20} step={1} value={stake} onChange={(e) => setStake(+e.target.value)} />
+        <input id="stake" type="range" min={5} max={20} step={1} value={stake} onChange={(e) => setStake(+e.target.value)}
+          aria-valuetext={`£${stake}`} style={{ '--fill': `${((stake - 5) / 15) * 100}%` }} />
       </div>
+      <p role="alert" aria-live="assertive" className="text-sm text-danger empty:hidden">{error}</p>
       <button type="submit" disabled={busy}
         className="btn btn-primary w-full min-h-13 text-lg font-semibold">
         {busy ? <><Loader2 className="animate-spin" size={18} aria-hidden /> Opening checkout…</> : <>Start my streak <ArrowRight size={18} aria-hidden /></>}
       </button>
       <p className="text-xs text-muted text-center">Stripe test mode: use card 4242 4242 4242 4242. No real money moves. Nothing is charged unless you break the streak.</p>
-      <p role="alert" aria-live="assertive" className="text-sm text-danger min-h-5">{error}</p>
     </form>
   )
 }
@@ -151,6 +155,14 @@ function Chapters() {
         ))}
       </ol>
     </section>
+  )
+}
+
+export function Header() {
+  return (
+    <header className="w-full px-4 sm:px-8 max-w-6xl mx-auto flex items-center min-h-16">
+      <a href="#/" className="font-semibold tracking-tight min-h-11 inline-flex items-center"><span aria-hidden className="mr-2 h-2.5 w-2.5 rounded-full bg-gold ring-1 ring-ink" />Post or Pay</a>
+    </header>
   )
 }
 

@@ -5,7 +5,7 @@ import { useGSAP } from '@gsap/react'
 
 gsap.registerPlugin(ScrollTrigger, useGSAP)
 
-const GOLD = '#E0A526', RED = '#B42E24', INK = 'rgba(22,20,15,', PAPER = '#F4F1EA'
+const GOLD = '#E0A526', RED = '#B42E24', INK = 'rgba(22,20,15,'
 const clamp = (v) => Math.max(0, Math.min(1, v))
 const seg = (p, a, b) => clamp((p - a) / (b - a))
 const ease = (t) => 1 - Math.pow(1 - t, 3)
@@ -38,7 +38,7 @@ function draw(ctx, w, h, p) {
     ctx.strokeStyle = `${INK}${0.85 + glow * 0.15})`; ctx.lineWidth = 2.5 * s
     ctx.fillStyle = `${INK}0.03)`
     ctx.beginPath(); ctx.roundRect(left, top, jw, jh, 28 * s); ctx.fill(); ctx.stroke()
-    ctx.fillRect(left + 18 * s, top - 18 * s, jw - 36 * s, 14 * s)
+    ctx.beginPath(); ctx.roundRect(left + 18 * s, top - 18 * s, jw - 36 * s, 14 * s, 4 * s); ctx.fill(); ctx.stroke()
   } else {
     const t = ease(shatter)
     for (let i = 0; i < 7; i++) {
@@ -81,8 +81,13 @@ function draw(ctx, w, h, p) {
         ctx.globalAlpha = crack * (1 - patch); ctx.stroke(); ctx.globalAlpha = 1
       }
       if (patch > 0) {
-        ctx.globalAlpha = patch; ctx.fillStyle = GOLD; ctx.beginPath(); ctx.roundRect(x, cy, cw, cw, 10 * s); ctx.fill()
-        ctx.fillStyle = '#16140F'; ctx.fillRect(x + cw * 0.25, cy + cw * 0.42, cw * 0.5, cw * 0.16); ctx.globalAlpha = 1
+        // Insured day: same look as the dashboard cell (pale gold, dashed edge, shield).
+        const mx = x + cw / 2, my = cy + cw / 2, r = cw * 0.2
+        ctx.globalAlpha = patch; ctx.fillStyle = '#F1DDB0'; ctx.strokeStyle = '#16140F'; ctx.lineWidth = 1.5; ctx.setLineDash([4 * s, 3 * s])
+        ctx.beginPath(); ctx.roundRect(x, cy, cw, cw, 10 * s); ctx.fill(); ctx.stroke(); ctx.setLineDash([])
+        ctx.lineWidth = 2 * s; ctx.beginPath(); ctx.moveTo(mx, my - r * 1.2); ctx.lineTo(mx + r, my - r * 0.7); ctx.lineTo(mx + r, my + r * 0.1)
+        ctx.quadraticCurveTo(mx + r, my + r, mx, my + r * 1.3); ctx.quadraticCurveTo(mx - r, my + r, mx - r, my + r * 0.1); ctx.lineTo(mx - r, my - r * 0.7); ctx.closePath(); ctx.stroke()
+        ctx.globalAlpha = 1
       }
       continue
     }
@@ -127,7 +132,7 @@ export default function Scene() {
   return (
     <section ref={wrap} className="relative h-svh w-full overflow-hidden bg-bg" aria-label="How a streak plays out">
       <canvas ref={canvas} className="absolute inset-0 h-full w-full" aria-hidden />
-      <p ref={caption} aria-hidden className="absolute bottom-[8%] left-0 right-0 px-4 text-center text-2xl sm:text-4xl font-semibold tracking-[-0.03em] text-balance" />
+      <p ref={caption} aria-hidden className="absolute bottom-[16%] sm:bottom-[8%] left-0 right-0 px-4 text-center text-2xl sm:text-4xl font-semibold tracking-[-0.03em] text-balance" />
       <p className="sr-only">A coin drops into a jar. Seven day cells light up. One cracks and is patched with insurance. A kept streak glows; a broken one shatters.</p>
     </section>
   )

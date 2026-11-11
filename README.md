@@ -38,10 +38,10 @@ A rule-based check decides "posted". The AI coach (free OpenRouter model) writes
 ## Run locally
 ```bash
 npm install
-cp .env.example .env.local   # STRIPE_SECRET_KEY (sk_test_ only), UPSTASH_REDIS_REST_URL/TOKEN, optional OPENROUTER_API_KEY
-npx vercel dev               # API on :3000
-npm run dev                  # SPA on :5173, proxies /api
+cp .env.example .env.local   # STRIPE_SECRET_KEY (test key only), DEMO_CUSTOMER_ID, optional OPENROUTER_API_KEY
+LOCAL_MEMORY_STORE=1 node --env-file=.env.local scripts/dev-api.mjs   # API on :3030, pledges kept in memory
+npm run dev                  # SPA on :5173, proxies /api to :3030
 npm test                     # logic self-test
 ```
 
-Stack: React 19.3, Vite 8.3, Tailwind 4.3, GSAP 3.15, Lenis 1.3, Stripe Node 23.1, Upstash Redis, Vercel functions.
+Stack: React 19.3, Vite 8.3, Tailwind 4.3, GSAP 3.15, Lenis 1.3, Stripe Node 23.1, Vercel functions. Pledges are stored on Stripe Customer metadata.
