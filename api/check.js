@@ -10,7 +10,7 @@ export default route(['POST'], async (req, res) => {
   assertActive(p);
   if (p.dayOffset >= LENGTH) throw fail(409, 'Day 7 has passed, settle the pledge');
   const day = p.days[p.dayOffset];
-  const source = p.platform === 'tiktok' ? 'link' : 'live';
+  const source = ['youtube', 'blog', 'newsletter', 'podcast'].includes(p.platform) ? 'live' : 'link';
   if (day.status === 'posted') {
     return res.status(200).json({ pledge: publicView(p), result: { posted: true, evidenceUrl: day.evidenceUrl, verdict: day.verdict, source } });
   }
@@ -21,5 +21,5 @@ export default route(['POST'], async (req, res) => {
     Object.assign(day, { status: 'posted', evidenceUrl: found.evidenceUrl, verdict });
     await savePledge(p);
   }
-  res.status(200).json({ pledge: publicView(p), result: { ...found, verdict, source, coach } });
+  res.status(200).json({ pledge: publicView(p), result: { ...found, verdict, source: found.source || source, coach } });
 });
