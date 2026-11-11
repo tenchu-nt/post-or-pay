@@ -20,6 +20,7 @@ export const PLATFORMS = [
   { id: 'podcast', label: 'Podcast', Icon: Mic, ph: 'https://feeds.example.com/maya', hint: 'RSS feed URL. Checked automatically.' },
 ]
 const FEED = ['blog', 'newsletter', 'podcast']
+export const platformLabel = (id) => PLATFORMS.find((x) => x.id === id)?.label || id
 
 const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches
 

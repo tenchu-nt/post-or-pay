@@ -4,7 +4,7 @@ import * as api from './api.js'
 import Streak from './components/Streak.jsx'
 import ShareCard, { pounds, verdictLine } from './components/ShareCard.jsx'
 import Proof from './components/Proof.jsx'
-import { Footer } from './Landing.jsx'
+import { Footer, platformLabel } from './Landing.jsx'
 
 const STATUS = { pending: 'Awaiting card', active: 'Live', won: 'Won', lost: 'Lost' }
 const LINK_PLATFORMS = ['tiktok', 'x', 'instagram', 'linkedin']
@@ -114,7 +114,7 @@ export default function Dashboard({ id, witnessId, params }) {
           <h1 className="headline text-4xl sm:text-6xl break-words">
             {pledge.name}’s <span className="text-muted">seven days.</span>
           </h1>
-          <p className="mt-4 text-muted break-all"><span className="capitalize">{pledge.platform}</span> · {pledge.handle} · Day {Math.min(pledge.dayIndex + 1, pledge.length)} of {pledge.length} · {pledge.today}</p>
+          <p className="mt-4 text-muted break-all"><span>{platformLabel(pledge.platform)}</span> · {pledge.handle} · Day {Math.min(pledge.dayIndex + 1, pledge.length)} of {pledge.length} · {pledge.today}</p>
           <p className="mt-6 text-3xl font-semibold tracking-tight tabular-nums">{pounds(pledge.stake)} <span className="text-muted font-normal">on the line</span></p>
           <p className="mt-1 text-muted">{verdictLine(pledge)}</p>
 

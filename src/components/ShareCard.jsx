@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Copy, Share2 } from 'lucide-react'
 import Streak from './Streak.jsx'
+import { platformLabel } from '../Landing.jsx'
 
 export const pounds = (p) => `£${(p / 100).toFixed(p % 100 ? 2 : 0)}`
 
@@ -32,8 +33,8 @@ export default function ShareCard({ pledge, actions = true }) {
       <div className="relative mx-auto w-full max-w-sm aspect-[1080/1350] rounded-3xl overflow-hidden border border-divider bg-surface p-6 flex flex-col justify-between shadow-[0_1px_2px_rgb(22_20_15/0.04),0_12px_32px_-12px_rgb(22_20_15/0.12)]">
         <div className="relative">
           <p className="eyebrow">Post or Pay</p>
-          <p className="mt-4 text-2xl font-semibold tracking-tight break-all">{pledge.handle}</p>
-          <p className="text-sm text-muted capitalize">{pledge.platform} · {pledge.length}-day streak</p>
+          <p className="mt-4 text-xl font-semibold tracking-tight break-all">{pledge.handle}</p>
+          <p className="text-sm text-muted">{platformLabel(pledge.platform)} · {pledge.length}-day streak</p>
         </div>
         <div className="relative"><Streak pledge={pledge} /></div>
         <div className="relative">
